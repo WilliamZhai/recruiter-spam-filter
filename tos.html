@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service — Recruiter Spam Filter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --border: #222222;
+      --accent: #e8ff00;
+      --text: #f0f0f0;
+      --muted: #666666;
+      --mono: 'Space Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-logo { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); text-decoration: none; }
+    .nav-link { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-link:hover { color: var(--text); }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 8rem 2rem 6rem;
+    }
+
+    .tag {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 {
+      font-family: var(--mono);
+      font-size: clamp(1.75rem, 5vw, 3rem);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .updated {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-bottom: 3rem;
+    }
+
+    h2 {
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 2.5rem 0 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    footer p { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
+    footer a { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    footer a:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">// recruiter-spam-filter</a>
+  <a href="index.html" class="nav-link">← Back</a>
+</nav>
+
+<div class="content">
+  <p class="tag">// Legal</p>
+  <h1>Terms of Service</h1>
+  <p class="updated">Last updated: April 2026</p>
+
+  <h2>// Acceptance</h2>
+  <p>By installing or using Recruiter Spam Filter, you agree to these terms. If you do not agree, do not use the add-on.</p>
+
+  <h2>// What the service does</h2>
+  <p>Recruiter Spam Filter is a Gmail add-on that automatically classifies and archives recruiter outreach emails. It runs inside your Google account via Google Apps Script and uses a third-party AI API to classify email content.</p>
+
+  <h2>// Your data</h2>
+  <p>Email subject lines and a portion of email body text are sent to a third-party AI classification service for the sole purpose of determining whether an email is recruiter spam. No email content is stored by us. See our <a href="privacy.html" style="color: var(--accent);">Privacy Policy</a> for full details.</p>
+
+  <h2>// No warranty</h2>
+  <p>This service is provided "as is" without warranty of any kind. We do not guarantee that all recruiter emails will be detected, or that legitimate emails will never be incorrectly filtered. Use at your own discretion.</p>
+
+  <h2>// Limitation of liability</h2>
+  <p>We are not liable for any missed emails, incorrectly archived messages, or any other damages arising from the use of this add-on. Always check your "Recruiter Spam" label periodically to ensure no important emails were incorrectly filtered.</p>
+
+  <h2>// Changes</h2>
+  <p>We may update these terms at any time. Continued use of the add-on after changes constitutes acceptance of the new terms.</p>
+
+  <h2>// Contact</h2>
+  <p>Questions? Open an issue on <a href="https://github.com/WilliamZhai/recruiter-spam-filter/issues" target="_blank" style="color: var(--accent);">GitHub</a>.</p>
+</div>
+
+<footer>
+  <p>© 2026 Recruiter Spam Filter</p>
+  <a href="index.html">← Home</a>
+</footer>
+
+</body>
+</html>
