@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Setup Guide — Recruiter Spam Filter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --border: #222222;
+      --accent: #e8ff00;
+      --accent-dim: rgba(232, 255, 0, 0.1);
+      --text: #f0f0f0;
+      --muted: #666666;
+      --mono: 'Space Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-weight: 300;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-logo { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); text-decoration: none; letter-spacing: 0.05em; }
+    .nav-link { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
+    .nav-link:hover { color: var(--text); }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 8rem 2rem 6rem;
+    }
+
+    .tag {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.1s;
+    }
+
+    h1 {
+      font-family: var(--mono);
+      font-size: clamp(1.75rem, 5vw, 3rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.2s;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: var(--muted);
+      margin-bottom: 4rem;
+      max-width: 520px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.3s;
+    }
+
+    /* Step blocks */
+    .step-block {
+      border: 1px solid var(--border);
+      margin-bottom: 2px;
+      opacity: 0;
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    .step-block:nth-child(1) { animation-delay: 0.4s; }
+    .step-block:nth-child(2) { animation-delay: 0.5s; }
+    .step-block:nth-child(3) { animation-delay: 0.6s; }
+    .step-block:nth-child(4) { animation-delay: 0.7s; }
+    .step-block:nth-child(5) { animation-delay: 0.8s; }
+    .step-block:nth-child(6) { animation-delay: 0.9s; }
+    .step-block:nth-child(7) { animation-delay: 1.0s; }
+
+    .step-block.open { border-color: var(--accent); }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1.5rem 2rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .step-header:hover { background: var(--surface); }
+
+    .step-number {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      flex-shrink: 0;
+      width: 2.5rem;
+    }
+
+    .step-title-wrap { flex: 1; }
+
+    .step-title {
+      font-family: var(--mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .step-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .step-toggle {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--muted);
+      flex-shrink: 0;
+      transition: color 0.2s, transform 0.2s;
+    }
+
+    .step-block.open .step-toggle { color: var(--accent); transform: rotate(45deg); }
+
+    .step-body {
+      display: none;
+      padding: 0 2rem 2rem 2rem;
+      padding-left: calc(2rem + 2.5rem + 1.5rem);
+    }
+
+    .step-body.open { display: block; }
+
+    .step-body p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+
+    /* Screenshot */
+    .screenshot {
+      border: 1px solid var(--border);
+      margin: 1.25rem 0;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .screenshot img {
+      width: 100%;
+      display: block;
+      opacity: 0.92;
+      transition: opacity 0.2s;
+    }
+
+    .screenshot img:hover { opacity: 1; }
+
+    .screenshot-caption {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      padding: 0.6rem 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Note boxes */
+    .note {
+      border-left: 2px solid var(--accent);
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      background: var(--accent-dim);
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .note strong { color: var(--text); font-family: var(--mono); font-size: 0.75rem; }
+
+    /* Terminal */
+    .terminal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1.25rem 1.5rem;
+      margin: 1rem 0;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      line-height: 1.9;
+    }
+
+    .terminal .prompt { color: var(--accent); }
+    .terminal .comment { color: var(--muted); }
+    .terminal .ok { color: #69db7c; }
+    .terminal .warn { color: #ffd43b; }
+
+    /* CTA bottom */
+    .cta-block {
+      border: 1px solid var(--border);
+      padding: 2.5rem;
+      margin-top: 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 1.2s;
+    }
+
+    .cta-block h3 { font-family: var(--mono); font-size: 0.95rem; margin-bottom: 0.4rem; }
+    .cta-block p { font-size: 0.85rem; color: var(--muted); }
+
+    .btn-primary {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      padding: 0.85rem 2rem;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 700;
+      transition: opacity 0.2s, transform 0.2s;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    footer p { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
+    footer a { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    footer a:hover { color: var(--accent); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">// recruiter-spam-filter</a>
+  <a href="index.html" class="nav-link">← Back to home</a>
+</nav>
+
+<div class="content">
+
+  <p class="tag">// Setup Guide</p>
+  <h1>Up and running<br/>in 2 minutes.</h1>
+  <p class="subtitle">Follow the steps below. Click each step to expand it. You'll never think about recruiter spam again.</p>
+
+  <div id="steps">
+
+    <!-- STEP 1 -->
+    <div class="step-block open" id="step-0">
+      <div class="step-header" onclick="toggleStep(0)">
+        <span class="step-number">01 —</span>
+        <div class="step-title-wrap">
+          <div class="step-title">Open the Marketplace listing</div>
+          <div class="step-desc">Find the add-on on Google Workspace Marketplace and click Install.</div>
+        </div>
+        <span class="step-toggle">+</span>
+      </div>
+      <div class="step-body open" id="body-0">
+        <p>Go to the Google Workspace Marketplace listing for Recruiter Spam Filter. Click the blue <strong style="color:var(--text)">Install</strong> button in the top right.</p>
+        <div class="screenshot">
+          <img src="images/1_marketplace_listing.png" alt="Marketplace listing showing the Install button" />
+          <div class="screenshot-caption">// Google Workspace Marketplace — click Install</div>
+        </div>
+        <div class="note">
+          <strong>// Make sure you're signed in</strong><br/>
+          Use the Google account with the Gmail inbox you want to filter.
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step-block" id="step-1">
+      <div class="step-header" onclick="toggleStep(1)">
+        <span class="step-number">02 —</span>
+        <div class="step-title-wrap">
+          <div class="step-title">Get ready to install</div>
+          <div class="step-desc">Confirm the permission request to proceed.</div>
+        </div>
+        <span class="step-toggle">+</span>
+      </div>
+      <div class="step-body" id="body-1">
+        <p>A dialog will appear asking for permission to start installing. Click <strong style="color:var(--text)">Continue</strong>.</p>
+        <div class="screenshot">
+          <img src="images/2_get_ready_to_install.png" alt="Get ready to install dialog" />
+          <div class="screenshot-caption">// Click Continue to proceed</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step-block" id="step-2">
+      <div class="step-header" onclick="toggleStep(2)">
+        <span class="step-number">03 —</span>
+        <div class="step-title-wrap">
+          <div class="step-title">Dismiss the unverified app warning</div>
+          <div class="step-desc">Google shows this for all apps pending OAuth verification. It's safe to continue.</div>
+        </div>
+        <span class="step-toggle">+</span>
+      </div>
+      <div class="step-body" id="body-2">
+        <p>You'll see a screen saying "Google hasn't verified this app." This is a standard notice for apps still going through Google's verification process — not a sign anything is wrong.</p>
+        <div class="screenshot">
+          <img src="images/3_unverified_warning.png" alt="Google unverified app warning screen" />
+          <div class="screenshot-caption">// Click Continue to proceed — verification is in progress</div>
+        </div>
+        <div class="note">
+          <strong>// Why does this appear?</strong><br/>
+          Google requires OAuth verification for apps that request Gmail access. We've submitted for verification. Until it's approved, this warning appears. Click <strong style="color:var(--text)">Continue</strong> to proceed.
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step-block" id="step-3">
+      <div class="step-header" onclick="toggleStep(3)">
+        <span class="step-number">04 —</span>
+        <div class="step-title-wrap">
+          <div class="step-title">Allow Gmail access</div>
+          <div class="step-desc">Grant the permissions needed to read, label, and archive emails.</div>
+        </div>
+        <span class="step-toggle">+</span>
+      </div>
+      <div class="step-body" id="body-3">
+        <p>Google will show you exactly what the add-on can access. All permissions are required for the add-on to work. Click <strong style="color:var(--text)">Allow</strong>.</p>
+        <div class="screenshot">
+          <img src="images/4_allow_access.png" alt="Gmail permissions screen showing required access" />
+          <div class="screenshot-caption">// All permissions are needed — nothing extra is requested</div>
+        </div>
+        <div class="terminal">
+          <div><span class="prompt">Run as a Gmail add-on</span> <span class="comment">— displays the sidebar UI</span></div>
+          <div><span class="prompt">Read & compose emails</span> <span class="comment">— needed to scan and classify</span></div>
+          <div><span class="prompt">Connect to external service</span> <span class="comment">— sends subject/body to AI classifier</span></div>
+          <div><span class="prompt">Run when not present</span> <span class="comment">— enables the hourly background scan</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step-block" id="step-4">
+      <div class="step-header" onclick="toggleStep(4)">
+        <span class="step-number">05 —</span>
+        <div class="step-title-wrap">
+          <div class="step-title">Installation confirmed</div>
+          <div class="step-desc">The add-on has been added to your Gmail sidebar.</div>
+        </div>
+        <span class="step-toggle">+</span>
+      </div>
+      <div class="step-body" id="body-4">
+        <p>You'll see a confirmation screen. Click <strong style="color:var(--text)">Done</strong>, then open Gmail.</p>
+        <div class="screenshot">
+          <img src="images/5_successful_install.png" alt="Successful installation confirmation screen" />
+          <div class="screenshot-caption">// Add-on successfully installed — click Done and open Gmail</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step-block" id="step-5">
+      <div class="step-header" onclick="toggleStep(5)">
+        <span class="step-number">06 —</span>
+        <div class="step-title-wrap">
+          <div class="step-title">Open the sidebar and activate</div>
+          <div class="step-desc">Click the add-on icon in Gmail's right panel, then hit Activate.</div>
+        </div>
+        <span class="step-toggle">+</span>
+      </div>
+      <div class="step-body" id="body-5">
+        <p>In Gmail, look for the Recruiter Spam Filter icon in the right sidebar. Click it to open the panel, then click the <strong style="color:var(--text)">Activate</strong> button at the bottom.</p>
+        <div class="screenshot">
+          <img src="images/6_inside_gmail_unactivated_page.png" alt="Gmail sidebar showing the add-on before activation" />
+          <div class="screenshot-caption">// Click Activate — this schedules the hourly background scan</div>
+        </div>
+        <div class="note">
+          <strong>// Can't find the icon?</strong><br/>
+          Click the <strong style="color:var(--text)">+</strong> at the bottom of Gmail's right sidebar to browse installed add-ons and pin it.
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 7 -->
+    <div class="step-block" id="step-6">
+      <div class="step-header" onclick="toggleStep(6)">
+        <span class="step-number">07 —</span>
+        <div class="step-title-wrap">
+          <div class="step-title">You're live — hit Run Now to test</div>
+          <div class="step-desc">The add-on is active. Trigger your first scan manually to see it work.</div>
+        </div>
+        <span class="step-toggle">+</span>
+      </div>
+      <div class="step-body" id="body-6">
+        <p>After activating, the sidebar shows your status and stats. Hit <strong style="color:var(--text)">Run Now</strong> to trigger an immediate scan — you'll see a toast showing how many recruiter emails were archived.</p>
+        <div class="screenshot">
+          <img src="images/7_activated_prompt_user_to_run.png" alt="Activated sidebar showing Active status and Run Now button" />
+          <div class="screenshot-caption">// Active status confirmed — Run Now to trigger your first scan</div>
+        </div>
+        <div class="terminal">
+          <div><span class="comment">// From here, everything is automatic</span></div>
+          <br/>
+          <div><span class="prompt">Every hour:</span> inbox scanned automatically</div>
+          <div><span class="prompt">Recruiter emails:</span> <span class="warn">labeled _RecruiterSpam + archived</span></div>
+          <div><span class="prompt">Everything else:</span> <span class="ok">never touched</span></div>
+          <div><span class="prompt">Missed something?</span> check the _RecruiterSpam label anytime</div>
+        </div>
+        <div class="note">
+          <strong>// Heads up — reauthorization</strong><br/>
+          While the app is pending Google verification, you may need to re-authorize every ~7 days. We're working on getting verified to remove this step permanently.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="cta-block">
+    <div>
+      <h3>Something not working?</h3>
+      <p>Open an issue on GitHub and we'll help you out.</p>
+    </div>
+    <a href="https://github.com/WilliamZhai/recruiter-spam-filter/issues" target="_blank" class="btn-primary">Open an issue →</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2026 Recruiter Spam Filter</p>
+  <a href="index.html">Home</a>
+  <a href="privacy.html">Privacy Policy</a>
+  <a href="tos.html">Terms of Service</a>
+</footer>
+
+<script>
+  function toggleStep(index) {
+    const block = document.getElementById('step-' + index);
+    const body = document.getElementById('body-' + index);
+    const toggle = block.querySelector('.step-toggle');
+    const isOpen = block.classList.contains('open');
+
+    block.classList.toggle('open', !isOpen);
+    body.classList.toggle('open', !isOpen);
+    toggle.textContent = isOpen ? '+' : '+';
+    toggle.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(45deg)';
+    toggle.style.color = isOpen ? 'var(--muted)' : 'var(--accent)';
+  }
+</script>
+
+</body>
+</html>
